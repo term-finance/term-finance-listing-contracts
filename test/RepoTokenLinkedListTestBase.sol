@@ -16,7 +16,7 @@ import {MockTermRepoToken} from "./MockTermRepoToken.sol";
 import {MockTermController} from "./MockTermController.sol";
 import {MockERC20} from "./MockERC20.sol";
 
-contract TermListingTestBase is Test, IRepoTokenLinkedListEvents {
+contract RepoTokenLinkedListTestBase is Test, IRepoTokenLinkedListEvents {
     uint256 public constant NUM_DEPOSITORS = 10;
     uint256 public constant NUM_LENDERS = 10;
     uint256 public constant DELTA = 0.0001e18;
