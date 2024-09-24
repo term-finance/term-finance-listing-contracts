@@ -2,10 +2,10 @@
 pragma solidity ^0.8.20;
 
 import {IAccessControl} from "@openzeppelin/contracts/access/IAccessControl.sol";
-import "./TermListingTestBase.sol";
+import "./RepoTokenLinkedListTestBase.sol";
 import "forge-std/console2.sol";
 
-contract TestListingContract is TermListingTestBase {
+contract TestRepoTokenLinkedListContract is RepoTokenLinkedListTestBase {
 
     function setUp() public override {
         super.setUp();
