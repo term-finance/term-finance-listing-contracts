@@ -234,7 +234,7 @@ contract RepoTokenLinkedList is
         require(rate > 0 && rate < RATE_PRECISION, "Discount rate out of valid range");
 
         uint256 numerator = ITermRepoToken(repoToken).redemptionValue() * RATE_PRECISION * THREESIXTY_DAYCOUNT_SECONDS;
-        uint256 denominator = RATE_PRECISION * THREESIXTY_DAYCOUNT_SECONDS + ((rate + discountRateMarkup) * timeToMaturity);
+        uint256 denominator = RATE_PRECISION * THREESIXTY_DAYCOUNT_SECONDS + ((rate - discountRateMarkup) * timeToMaturity);
         uint256 pricePerToken = (numerator / denominator);
 
         require(pricePerToken > 0, "No valid pricePerToken calculated for the specified repoToken");
