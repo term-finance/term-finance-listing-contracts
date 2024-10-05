@@ -71,6 +71,35 @@ contract TestRepoTokenLinkedListContract is RepoTokenLinkedListTestBase {
         listingContract.purchase(purchaseAmount, address(repoToken1));
     }
 
+    function testSwapExactPurchaseForRepo(uint256 depositAmount, uint256 purchaseTokenAmount) public {
+        _setAuctionRate(repoToken1, 0.99e18);
+
+        (uint256 redemptionTimestamp, , ,) = repoToken1.config();
+        uint256 timeToMaturity = redemptionTimestamp > block.timestamp ? redemptionTimestamp - block.timestamp : 0;
+        uint8 repoTokenDecimals = ERC20(address(repoToken1)).decimals();
+
+        uint256 numerator = repoToken1.redemptionValue() * listingContract.RATE_PRECISION() * listingContract.THREESIXTY_DAYCOUNT_SECONDS();
+        uint256 denominator = listingContract.RATE_PRECISION() * listingContract.THREESIXTY_DAYCOUNT_SECONDS() + ((discountRateAdapter.getDiscountRate(address(repoToken1)) - listingContract.discountRateMarkup()) * timeToMaturity);
+        uint256 pricePerToken = (numerator / denominator);
+
+        depositAmount = bound(depositAmount, listingContract.minimumListingAmount(address(purchaseToken)), MAX_DEPOSIT_AMOUNT);
+        purchaseTokenAmount = bound(purchaseTokenAmount, 0, MAX_PURCHASE_AMOUNT * pricePerToken * purchaseToken.decimals() / ( listingContract.REDEMPTION_VALUE_PRECISION() * repoTokenDecimals));
+
+        uint256 purchaseAmount = purchaseTokenAmount * listingContract.REDEMPTION_VALUE_PRECISION() * repoTokenDecimals / (pricePerToken * purchaseToken.decimals());
+
+        if (purchaseAmount > depositAmount) {
+            purchaseTokenAmount = depositAmount * pricePerToken * purchaseToken.decimals() / (listingContract.REDEMPTION_VALUE_PRECISION() * repoTokenDecimals);
+        }
+
+
+        vm.prank(depositors[0]);
+        listingContract.createListing(address(repoToken1), depositAmount);
+
+        vm.prank(lenders[0]);
+        listingContract.swapExactPurchaseForRepo(purchaseTokenAmount, address(repoToken1));
+    }
+
+
     function testAdminFunctions() public {
         // blacklist
         assertEq(listingContract.repoTokenBlacklist(address(repoToken1)), false);
