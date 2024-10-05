@@ -99,7 +99,6 @@ contract TestRepoTokenLinkedListContract is RepoTokenLinkedListTestBase {
         listingContract.swapExactPurchaseForRepo(purchaseTokenAmount, address(repoToken1));
     }
 
-
     function testAdminFunctions() public {
         // blacklist
         assertEq(listingContract.repoTokenBlacklist(address(repoToken1)), false);
