@@ -242,6 +242,36 @@ contract RepoTokenLinkedList is
         _purchase(repoToken, purchaseToken, desiredAmount, pricePerToken);
     }
 
+    /// @notice Allows a user to purchase repo tokens
+    /// @param purchaseTokenAmount The amount of purchase tokens to spend in purchase
+    /// @param repoToken The address of the repo token to purchase
+    function swapExactPurchaseForRepo(
+        uint256 purchaseTokenAmount, 
+        address repoToken
+    ) external nonReentrant whenNotPaused onlyValidatedRepoToken(repoToken) {
+
+        (uint256 redemptionTimestamp, address purchaseToken, ,) = ITermRepoToken(repoToken).config();
+        uint256 repoTokenPrecision = 10 ** ERC20(repoToken).decimals();
+        uint256 purchaseTokenPrecision = 10 ** ERC20(purchaseToken).decimals();
+        uint256 timeToMaturity = redemptionTimestamp > block.timestamp ? redemptionTimestamp - block.timestamp : 0;
+
+        uint256 rate = discountRateAdapter.getDiscountRate(repoToken);
+
+        require(rate > 0 && rate < RATE_PRECISION, "Discount rate out of valid range");
+
+        uint256 numerator = ITermRepoToken(repoToken).redemptionValue() * RATE_PRECISION * THREESIXTY_DAYCOUNT_SECONDS;
+        uint256 denominator = RATE_PRECISION * THREESIXTY_DAYCOUNT_SECONDS + ((rate - discountRateMarkup) * timeToMaturity);
+        uint256 pricePerToken = (numerator / denominator);
+
+        require(pricePerToken > 0, "No valid pricePerToken calculated for the specified repoToken");
+
+        uint256 repoTokenAmount = purchaseTokenAmount * REDEMPTION_VALUE_PRECISION * repoTokenPrecision / (pricePerToken * purchaseTokenPrecision);
+
+        require(repoTokenAmount <= totalListed[repoToken], "Desired amount exceeds total listed tokens");
+
+        _purchase(repoToken, purchaseToken, repoTokenAmount, pricePerToken);
+    }
+
     /// @notice Internal function to handle the purchase logic
     /// @param repoToken The address of the repo token to purchase
     /// @param purchaseToken The address of the token used for purchase
