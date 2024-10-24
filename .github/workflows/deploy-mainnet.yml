@@ -1,4 +1,4 @@
-name: "[sepolia-deploy] deploy listing"
+name: "[mainnet-deploy] deploy listing"
 on:
   workflow_dispatch:
     inputs:
@@ -7,7 +7,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: 
-      name: sepolia
+      name: mainnet
       url: https://term-finance.github.io/term-finance-listing/
     steps:
       - uses: actions/checkout@master
