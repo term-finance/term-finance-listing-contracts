@@ -1,2 +1,2 @@
 slither-analyzer==0.11.0
-certora-cli==7.25.3
+certora-cli==7.26.0
